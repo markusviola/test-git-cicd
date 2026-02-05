@@ -1,0 +1,22 @@
+FROM webdevops/php:8.4-alpine
+
+RUN apk add --update --no-cache less \
+    git \
+    nodejs \
+    npm \
+    wget \
+    sed \
+    bash \
+    openrc
+
+RUN rm -rf /var/cache/apk/*
+
+WORKDIR /etc/
+
+RUN mkdir supervisor \
+    && mkdir supervisor/conf.d \
+    && echo "files = /etc/supervisor/conf.d/*.conf" >> /etc/supervisord.conf
+
+WORKDIR /var/www/html/
+
+CMD ["supervisord", "-n"]

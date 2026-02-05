@@ -1,0 +1,14 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+    {
+      "name": "Listen for Docker XDebug",
+      "type": "php",
+      "request": "launch",
+      "port": 9021,
+      "pathMappings": {
+        "/var/www/html": "/path_to_host_project_directory"
+      }
+    }
+  ]
+}

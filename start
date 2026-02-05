@@ -1,0 +1,91 @@
+#!/bin/bash
+
+GREEN="\e[32m"
+YELLOW="\e[33m"
+GREEN_BG="\e[42m"
+RED_BG="\e[41m"
+END_COLOR="\e[0m"
+
+STARTED_ONCE="./.started";
+ENV_FILE="./.env";
+
+set -eE
+trap 'echo; echo "❌ Executed failed! An error occured on line $LINENO: $BASH_COMMAND"; echo; exit 1' ERR
+
+if [ ! -e $ENV_FILE ]; then
+    echo
+    printf "${RED_BG}The environment variables file (.env) does not exist!${END_COLOR}"
+    echo
+    echo
+    printf "Please copy the .env.example file to proceed: ${YELLOW}cp .env.example .env${END_COLOR}"
+    echo
+    echo
+
+    exit
+fi
+
+echo
+printf "${YELLOW}Attempting to initialize the project...${END_COLOR}"
+echo
+echo
+
+docker compose down
+docker build . -f ./scripts/docker/Dockerfile.dev -t ccs-web-php:latest
+docker compose up -d
+
+if [ ! -e $STARTED_ONCE ]; then
+
+    echo
+    printf "${YELLOW}Downloading libraries & dependencies...${END_COLOR}"
+    echo
+    echo
+
+    docker exec ccs-web-php npm install --prefix /var/www/html
+    docker exec ccs-web-php composer install --working-dir=/var/www/html
+
+    docker exec ccs-web-php php artisan config:clear
+    docker exec ccs-web-php php artisan key:generate
+    docker exec ccs-web-php php artisan migrate --seed || true
+    docker exec ccs-web-php php artisan storage:link
+
+    touch $STARTED_ONCE
+
+    echo
+    printf "${YELLOW}Project initialization has finished.${END_COLOR}"
+else
+    echo
+    printf "${YELLOW}Project is already initialized.${END_COLOR}"
+fi
+
+echo
+echo
+docker exec ccs-web-php php artisan config:clear
+docker exec ccs-web-php php artisan cache:clear
+docker exec ccs-web-php php artisan route:cache
+docker exec ccs-web-php php artisan view:clear
+docker exec ccs-web-php php artisan event:clear
+
+docker exec ccs-web-php php artisan optimize
+
+echo
+printf "${YELLOW}Application has been cleared and optimized.${END_COLOR}"
+
+echo
+docker exec -u application ccs-web-php crontab scripts/docker/php/crontab/commands.txt
+printf "${YELLOW}Cron activated with Laravel scheduler set.${END_COLOR} (path: scripts/docker/php/crontab/commands.txt)"
+
+echo
+echo
+echo
+printf "${GREEN_BG}The Laravel application is now running!\e[0m"
+
+echo
+echo
+printf "Command to run the hot reload frontend:   \e[1;32mdocker exec ccs-web-php npm run dev\e[0m"
+
+echo
+printf "Command to build the frontend:            \e[1;32mdocker exec ccs-web-php npm run build\e[0m ${YELLOW}(delete public/hot)${END_COLOR}"
+echo
+echo
+
+

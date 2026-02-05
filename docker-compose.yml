@@ -1,0 +1,70 @@
+networks:
+  ccs-network:
+
+services:
+  ccs-web-php:
+    build:
+      context: ./scripts/docker/
+      dockerfile: Dockerfile.dev
+    image: ccs-web-php:latest
+    container_name: ccs-web-php
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "9030:9000"
+      - "5130:5173"
+    volumes:
+      - ./:/var/www/html
+      - ./scripts/docker/php/supervisor/ccs-web-worker.conf:/etc/supervisor/conf.d/ccs-web-worker.conf
+      - ./scripts/docker/php/supervisor/ccs-web-php-fpm.conf:/etc/supervisor/conf.d/ccs-web-php-fpm.conf
+      - ./scripts/docker/php/php.ini:/opt/docker/etc/php/php.ini
+    environment:
+      TZ: Asia/Tokyo
+      php.max_file_uploads: 50
+      PHP_MEMORY_LIMIT: 2048M
+      PHP_POST_MAX_SIZE: 200M
+      PHP_UPLOAD_MAX_FILESIZE: 20M
+      FPM_PM_MAX_CHILDREN: 32
+    networks:
+      - ccs-network
+
+  ccs-web-nginx:
+    image: nginx:alpine
+    container_name: ccs-web-nginx
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3030:80"
+    volumes:
+      - ./:/var/www/html
+      - ./scripts/docker/nginx/default.conf:/etc/nginx/templates/default.conf.template
+      - ./scripts/docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+    environment:
+      TZ: Asia/Tokyo
+      NGINX_SERVER_NAME: localhost
+      NGINX_CLIENT_MAX_BODY_SIZE: 200M
+    depends_on:
+      - ccs-web-php
+      - ccs-mysql
+    networks:
+      - ccs-network
+
+  ccs-mysql:
+    image: mysql:8.0
+    container_name: ccs-mysql
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "4356:3306"
+    volumes:
+      - ./scripts/docker/mysql/data:/var/lib/mysql
+    environment:
+      TZ: Asia/Tokyo
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    networks:
+      - ccs-network
