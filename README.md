@@ -34,7 +34,7 @@ It should run by default under `localhost:5130`. (not port 5173, that's internal
 Since you are using docker to run your project, running PHP, NPM commands or any configuration related commands must be done inside the containers.
 
 **Available container services:** 
-- `ccs-web-php` (php server: `php`, `composer`, `npm`, `supervisor` | default port: `9030` for PHP, `5130` for frontend)
+- `ccs-web-php` (PHP server: `php`, `composer`, `npm`, `supervisor` | default port: `9030` for PHP, `5130` for frontend)
 - `ccs-web-nginx` (web server: `nginx` | default port: `3030`)
 - `ccs-mysql` (database server: `mysql` | default port: `4356`)
 
@@ -146,7 +146,7 @@ On trigger, you should see the `Variables` and the `Call Stack` dropdown being f
 
 Alright, you can now set your `breakpoints` to any PHP class and start debugging!
 
-**Unfamiliar of breakpoint debugging? Here's a [guide](https://dev.to/phpcontrols/debugging-php-with-vscode-and-xdebug-a-step-by-step-guide-4296).**
+**Unfamiliar with breakpoint debugging? Here's a [guide](https://dev.to/phpcontrols/debugging-php-with-vscode-and-xdebug-a-step-by-step-guide-4296).**
 
 >
 >*"Using a breakpoint debugger will save you more time than spamming hardcoded logs around your logic; it's the old fashion way, but it's the right way to debug."*
