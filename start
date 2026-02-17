@@ -84,7 +84,7 @@ echo
 printf "Command to run the hot reload frontend:   \e[1;32mdocker exec -it ccs-web-php npm run dev\e[0m"
 
 echo
-printf "Command to build the frontend:            \e[1;32mdocker exec ccs-web-php npm run build\e[0m ${YELLOW}(delete public/hot)${END_COLOR}"
+printf "Command to build the frontend:            \e[1;32mdocker exec ccs-web-php npm run build\e[0m"
 echo
 echo
 

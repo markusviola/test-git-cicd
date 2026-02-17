@@ -28,13 +28,13 @@ The frontend can be run with:
 docker exec ccs-web-php npm run dev
 ```
 
-It should run by default under `localhost:5130`. (not port 5173, that's internal)
+It should run by default under the same `localhost:3030`, with the hot reload server running under `localhost:5130` (not port 5173, that's internal)
 
 #### Interacting with the Docker containers
 Since you are using docker to run your project, running PHP, NPM commands or any configuration related commands must be done inside the containers.
 
 **Available container services:** 
-- `ccs-web-php` (PHP server: `php`, `composer`, `npm`, `supervisor` | default port: `9030` for PHP, `5130` for frontend)
+- `ccs-web-php` (PHP server: `php`, `composer`, `npm`, `supervisor` | default port: `9030`)
 - `ccs-web-nginx` (web server: `nginx` | default port: `3030`)
 - `ccs-mysql` (database server: `mysql` | default port: `4356`)
 
