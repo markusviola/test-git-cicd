@@ -36,7 +36,7 @@ Run `localhost:3030`
 Since you are using docker to run your project, running PHP, NPM commands or any configuration related commands must be done inside the containers.
 
 **Available container services:** 
-- `ccs-web-php` (PHP server: `php`, `composer`, `npm`, `supervisor` | default port: `9030` for PHP, `5130` for frontend)
+- `ccs-web-php` (PHP server: `php`, `composer`, `npm`, `supervisor` | default port: `9030`)
 - `ccs-web-nginx` (web server: `nginx` | default port: `3030`)
 - `ccs-mysql` (database server: `mysql` | default port: `4356`)
 
