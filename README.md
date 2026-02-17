@@ -25,12 +25,10 @@ After the initialization, the backend application should already be running unde
 
 The frontend can be run with:
 ```sh
-docker exec ccs-web-php npm run dev
+docker exec -it ccs-web-php npm run dev
 ```
 
-~~It should run by default under `localhost:5130`. (not port 5173, that's internal)~~
-
-Run `localhost:3030`
+It should run by default under the same `localhost:3030`, with the hot reload server running under `localhost:5130` (not port 5173, that's internal)
 
 #### Interacting with the Docker containers
 Since you are using docker to run your project, running PHP, NPM commands or any configuration related commands must be done inside the containers.
