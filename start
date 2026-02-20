@@ -10,7 +10,7 @@ STARTED_ONCE="./.started";
 ENV_FILE="./.env";
 
 set -eE
-trap 'echo; echo "❌ Executed failed! An error occured on line $LINENO: $BASH_COMMAND"; echo; exit 1' ERR
+trap 'echo; echo "❌ Execution failed! An error occured on line $LINENO: $BASH_COMMAND"; echo; exit 1' ERR
 
 if [ ! -e $ENV_FILE ]; then
     echo
