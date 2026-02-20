@@ -5,18 +5,18 @@ on:
     branches: [ main, dev ]
   pull_request:
 
+env:
+  MYSQL_ROOT_PASSWORD: root
+  MYSQL_DATABASE: unit_test
+  MYSQL_USER: ccs_user
+  MYSQL_PASSWORD: randompass
+
 jobs:
   ci:
     runs-on: ubuntu-22.04
 
     env:
       APP_ENV: testing
-
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: unit-test
-      MYSQL_USER: ccs
-      MYSQL_PASSWORD: testpass
-
       DB_CONNECTION: mysql
       DB_HOST: mysql
       DB_PORT: 3306
