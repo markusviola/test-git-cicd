@@ -1,0 +1,57 @@
+name: Init
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+
+jobs:
+  init:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Pull source artifact
+        uses: actions/checkout@v4
+
+      - name: Run PHP 8.4 engine
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+          extensions: pdo, pdo_mysql, json, mbstring, bcmath, tokenizer, ctype, xml 
+          coverage: none
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            composer-${{ runner.os }}-
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Package base artifact
+        run: |
+          mkdir -p package
+          rsync -av --exclude=".git" \
+                    --exclude=".github" \
+                    ./ package/
+
+      - name: Upload base artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ccs-web-base
+          include-hidden-files: true
+          path: package
+
+  trigger-test:
+    needs: init
+    uses: ./.github/workflows/test.yml
+    with:
+      target_env: ${{ github.ref_name == 'main' && 'production' || 'development' }}
+    secrets: inherit
