@@ -16,7 +16,7 @@ jobs:
       APP_ENV: ${{ inputs.target_env }}
       APP_KEY: ${{ secrets.APP_KEY }}
 
-      # DB_CONNECTION: ${{ secrets.DB_CONNECTION }}
+      # DB_CONNECTION: ${{ secrets.DB_CONNECTION }} what
       # DB_PORT: ${{ secrets.DB_PORT }}
       # DB_HOST: ${{ secrets.DB_HOST }}
       # DB_DATABASE: ${{ secrets.DB_DATABASE }}
