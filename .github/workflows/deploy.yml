@@ -1,0 +1,21 @@
+name: Deploy
+
+on:
+  workflow_call:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ccs-web-build
+
+      - name: List build artifact structure
+        run: ls -la .
+
+      - name: Deploy build artifact
+        run: echo "Artifact deployment mocked!"
+

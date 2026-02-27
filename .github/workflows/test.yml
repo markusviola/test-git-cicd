@@ -6,6 +6,9 @@ on:
       target_env:
         required: true
         type: string
+      run_build:
+        required: true
+        type: boolean
 
 jobs:
   test:
@@ -44,7 +47,7 @@ jobs:
         with:
           name: ccs-web-base
 
-      - name: Debug artifact
+      - name: List base artifact structure
         run: ls -la .
 
       - name: Run PHP 8.4 engine
@@ -73,3 +76,11 @@ jobs:
 
       - name: Run PHPUnit
         run: php artisan test --env=testing
+
+  build:
+    if: inputs.run_build == true
+    needs: test
+    uses: ./.github/workflows/build.yml
+    with:
+      target_env: ${{ inputs.target_env }}
+    secrets: inherit

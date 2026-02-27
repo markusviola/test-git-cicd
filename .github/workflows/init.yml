@@ -2,8 +2,14 @@ name: Init
 
 on:
   push:
-    branches: [ main, dev ]
+    branches:
+      - main
+      - dev
+    tags:
+      - 'v*'
   pull_request:
+    branches:
+      - dev
 
 jobs:
   init:
@@ -49,9 +55,28 @@ jobs:
           include-hidden-files: true
           path: package
 
-  trigger-test:
+  test-pull-request:
+    if: github.event_name == 'pull_request'
     needs: init
     uses: ./.github/workflows/test.yml
     with:
-      target_env: ${{ github.ref_name == 'main' && 'production' || 'development' }}
+      target_env: ${{ github.ref == 'refs/heads/main' && 'stage' || 'test' }}
+      run_build: false
+    secrets: inherit
+
+  test-push:
+    if: github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/')
+    needs: init
+    uses: ./.github/workflows/test.yml
+    with:
+      target_env: ${{ github.ref == 'refs/heads/main' && 'stage' || 'test' }}
+      run_build: true
+    secrets: inherit
+
+  build-tag:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: init
+    uses: ./.github/workflows/build.yml
+    with:
+      target_env: production
     secrets: inherit

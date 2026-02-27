@@ -1,0 +1,107 @@
+name: Build
+
+on:
+  workflow_call:
+    inputs:
+      target_env:
+        required: true
+        type: string
+
+jobs:
+  build:
+    environment: ${{ inputs.target_env }}
+    runs-on: ubuntu-22.04
+
+    env:
+      APP_ENV: ${{ inputs.target_env }}
+      APP_KEY: ${{ secrets.APP_KEY }}
+
+      # DB_CONNECTION: ${{ secrets.DB_CONNECTION }}
+      # DB_PORT: ${{ secrets.DB_PORT }}
+      # DB_HOST: ${{ secrets.DB_HOST }}
+      # DB_DATABASE: ${{ secrets.DB_DATABASE }}
+      # DB_USERNAME: ${{ secrets.DB_USERNAME }}
+      # DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+
+      MAIL_MAILER: ${{ secrets.MAIL_MAILER }}
+      MAIL_SCHEME: ${{ secrets.MAIL_SCHEME }}
+      MAIL_HOST: ${{ secrets.MAIL_HOST }}
+      MAIL_PORT: ${{ secrets.MAIL_PORT }}
+      MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+      MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+      MAIL_FROM_ADDRESS: ${{ secrets.MAIL_FROM_ADDRESS }}
+      MAIL_FROM_NAME: ${{ secrets.MAIL_FROM_NAME }} 
+
+    steps:
+      - name: Download base artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ccs-web-base
+
+      - name: Run PHP 8.4 engine
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+          extensions: pdo, pdo_mysql, json, mbstring, bcmath, tokenizer, ctype, xml
+          coverage: none
+
+      - name: Run NodeJS 22.x engine
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Build .env
+        run: |
+          cp .env.example .env
+          echo "" >> .env
+          echo "APP_ENV=${{ env.APP_ENV }}" >> .env
+          echo "APP_KEY=${{ env.APP_KEY }}" >> .env
+
+          # To be updated...
+          # echo "DB_CONNECTION=${{ env.DB_CONNECTION }}" >> .env
+          # echo "DB_HOST=${{ env.DB_HOST }}" >> .env
+          # echo "DB_PORT=${{ env.DB_PORT }}" >> .env
+          # echo "DB_DATABASE=${{ env.DB_DATABASE }}" >> .env
+          # echo "DB_USERNAME=${{ env.DB_USERNAME }}" >> .env
+          # echo "DB_PASSWORD=${{ env.DB_PASSWORD }}" >> .env
+
+          # echo "MAIL_MAILER=${{ env.MAIL_MAILER }}" >> .env
+          # echo "MAIL_SCHEME=${{ env.MAIL_SCHEME }}" >> .env
+          # echo "MAIL_HOST=${{ env.MAIL_HOST }}" >> .env
+          # echo "MAIL_PORT=${{ env.MAIL_PORT }}" >> .env
+          # echo "MAIL_USERNAME=${{ env.MAIL_USERNAME }}" >> .env
+          # echo "MAIL_PASSWORD=${{ env.MAIL_PASSWORD }}" >> .env
+          # echo "MAIL_FROM_ADDRESS=${{ env.MAIL_FROM_ADDRESS }}" >> .env
+          # echo "MAIL_FROM_NAME=${{ env.MAIL_FROM_NAME }}" >> .env
+
+      - name: Debug Laravel bootstrap
+        run: |
+          ls -la .
+          cat .env
+          ls -la vendor || echo "vendor missing"
+          php artisan --version
+
+      - name: Install NodeJS dependencies
+        run: npm ci
+
+      - name: Build React assets
+        run: npm run build
+
+
+      - name: Package build artifact
+        run: |
+          mkdir -p package
+          rsync -av --exclude="node_modules" \
+                    ./ package/
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ccs-web-build
+          path: package
+
+  deploy:
+    needs: build
+    uses: ./.github/workflows/deploy.yml
+    secrets: inherit
